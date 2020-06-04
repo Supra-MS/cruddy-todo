@@ -8,9 +8,28 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  // invoke getNextUniqueId() using error first pattern, passing callback and error + iD
+  counter.getNextUniqueId((err, id) => {
+    // if error
+    if (err) {
+      // text log
+      console.log('Unable to read counterId');
+    } else {
+    // overwrite current file using writeFile using given text EFCP (error first callback pattern)
+      var newFilePath = `${this.dataDir}/${id}.txt`; // datastore/data/00001.txt
+      fs.writeFile(newFilePath, text, (err, data) => {
+        // if error
+        if (err) {
+          callback(new Error('Error in creating file'));
+        } else {
+          // invoke given callback with null, returning id and text
+          console.log('id: ' + id + 'text: ' + text + 'data: ' + data);
+          callback(null, { id, text });
+        }
+      });
+    }
+  });
+
 };
 
 exports.readAll = (callback) => {
