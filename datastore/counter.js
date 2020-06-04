@@ -12,6 +12,11 @@ var counter = 0;
 // https://www.google.com/search?q=what+is+a+zero+padded+number%3F
 
 const zeroPaddedNumber = (num) => {
+  // `%` — yields a literal `%` character
+  // `d` or `i` — yields an integer as a signed decimal number
+  let sprintFString = sprintf('%05d', num);
+  console.log('sprintFString: ', sprintFString, typeof sprintFString); // '00002'
+  return sprintFString;
   return sprintf('%05d', num);
 };
 
@@ -38,9 +43,25 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+exports.getNextUniqueId = (callback) => {
+  // read file, readCounter()
+  readCounter((err, readCounterId) => {
+    if (err) {
+      console.log('Cannot read counter file');
+    } else {
+      // increment counter
+      counter = readCounterId + 1;
+      // writeCounter()
+      writeCounter(counter, (err, updatedCounterId) => {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, updatedCounterId);
+        }
+      });
+    }
+  });
+
 };
 
 

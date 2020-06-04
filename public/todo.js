@@ -7,13 +7,16 @@ window.Todo = {
 
   // Create (Crud) -- collection
   create: function(text, callback) {
-    return $.ajax({
+
+    let createObj = $.ajax({
       url: this.url,
       type: 'POST',
       dataType: 'json',
       data: {todoText: text},
       success: callback
     });
+    console.log('Created: ', createObj);
+    return createObj;
   },
 
   // Read all (cRud) -- collection
