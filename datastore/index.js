@@ -33,10 +33,21 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  // Review all files in directory
+  fs.readdir(this.dataDir, (err, files) => {
+    // if there are errors
+    if (err) {
+      callback(new Error('Error in reading files'));
+    } else {
+      // otherwise map all file objects
+      var data = _.map(files, (text, id) => {
+        console.log('readAll fs.readdir text: ' + text);
+        text = text.slice(0, 5);
+        return { id: text, text };
+      });
+      callback(null, data);
+    }
   });
-  callback(null, data);
 };
 
 exports.readOne = (id, callback) => {
