@@ -62,13 +62,27 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
+  /* var item = items[id];
   if (!item) {
     callback(new Error(`No item with id: ${id}`));
   } else {
     items[id] = text;
     callback(null, { id, text });
-  }
+  } */
+  var newFilePath = `${this.dataDir}/${id}.txt`;
+  fs.access(newFilePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      callback(new Error(`No item with id: ${id}`));
+    } else {
+      fs.writeFile(newFilePath, text, (err) => {
+        if (err) {
+          console.log('Error updating the todo: ', err);
+        } else {
+          callback(null, { id, text });
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
