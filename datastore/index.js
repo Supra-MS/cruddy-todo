@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+Promise.promisifyAll(fs);
+
 
 var items = {};
 
@@ -34,18 +37,28 @@ exports.create = (text, callback) => {
 
 exports.readAll = (callback) => {
   // Review all files in directory
-  fs.readdir(this.dataDir, (err, files) => {
+  fs.readdir(this.dataDir, (err, listOfFiles) => {
     // if there are errors
     if (err) {
       callback(new Error('Error in reading files'));
     } else {
       // otherwise map all file objects
-      var data = _.map(files, (text, id) => {
-        console.log('readAll fs.readdir text: ' + text);
-        text = text.slice(0, 5);
-        return { id: text, text };
+      console.log('Files: ', listOfFiles);
+      var data = _.map(listOfFiles, (eachFileContent, id) => {
+        console.log('readAll fs.readdir text: ' + eachFileContent + ' ID: ' + id);
+        eachFileContent = eachFileContent.slice(0, 5);
+        var readOneAsync = Promise.promisify(this.readOne);
+        return readOneAsync(eachFileContent)
+          .then(({ id, text }) => {
+            return { id, text };
+          });
       });
-      callback(null, data);
+      Promise.all(data)
+        .then((data) => {
+          console.log('Inside readAll : ' + 'data: ' + data);
+          callback(null, data);
+        });
+      console.log('Outside readAll else: ' + 'data: ' + data);
     }
   });
 };
